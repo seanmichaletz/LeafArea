@@ -1,7 +1,6 @@
 run.ij <- function(path.imagej = NULL, set.memory = 4, set.directory, distance.pixel = 826, known.distance = 21, trim.pixel = 20, low.circ = 0, upper.circ = 1, low.size = 0.7, upper.size = "Infinity", prefix="\\.|-",log=F,check.image=F,save.image=F){
 
-file.list <- list.files(set.directory, recursive = TRUE )
-file.list <- file.list[grep(".jpeg$|.jpg$|.JPEG$|.JPG$|.tif$|.tiff$|.Tif$|.Tiff$",file.list)]
+file.list <- list.files(set.directory, recursive = TRUE, full.names = TRUE, pattern = ".jpeg$|.jpg$|.tif$|.tiff$", ignore.case = TRUE)
 
 if (length(file.list) == 0) return("No images in the directory")
 

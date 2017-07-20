@@ -14,9 +14,13 @@ size.arg <- paste(low.size,upper.size,sep="-")
 
 
 os <-.Platform$OS.type
-if (is.null(path.imagej) == T){
-imagej <- find.ij(ostype = .Platform$OS.type)
-if(imagej == "ImageJ not found") return("ImageJ not found") else path.imagej <- imagej
+if (is.null(path.imagej)){
+  imagej <- find.ij(ostype = .Platform$OS.type)
+  if(imagej == "ImageJ not found"){
+     return("ImageJ not found")
+    }else{
+      path.imagej <- imagej
+    }
 }
 
 
@@ -25,20 +29,27 @@ if (os=="windows"){
   #slash is replaced by backslash because they don't work in batch
   path.imagej <- gsub("/","\\\\",path.imagej)
 
-  if(file.exists(paste(path.imagej,"ij.jar",sep=""))!=T & file.exists(paste(path.imagej,"ij.jar",sep="/"))!=T) {warning("ij.jar was not found. Specify the correct path to ImageJ directory or reinstall ImageJ bundled with Java")
+  if(!file.exists(paste(path.imagej,"ij.jar",sep="")) & !file.exists(paste(path.imagej,"ij.jar",sep="/"))) {
+    warning("ij.jar was not found. Specify the correct path to ImageJ directory or reinstall ImageJ bundled with Java")
     return("ImageJ not found")
-  }  else if (file.exists(paste(path.imagej,"jre/bin/java.exe",sep=""))!=T & file.exists(paste(path.imagej,"jre/bin/java.exe",sep="/"))!=T) {warning("java was not found. Specify the correct path to ImageJ directory or reinstall ImageJ bundled with Java")
+  }  else if (!file.exists(paste(path.imagej,"jre/bin/java.exe",sep="")) & !file.exists(paste(path.imagej,"jre/bin/java.exe",sep="/"))) {
+    warning("java was not found. Specify the correct path to ImageJ directory or reinstall ImageJ bundled with Java")
     return("ImageJ not found")
   }
  } else {
   unix.check <- Sys.info()["sysname"]
-    if(unix.check=="Linux") {
-  if(file.exists(paste(path.imagej, "ij.jar",sep=""))!=T & file.exists(paste(path.imagej, "ij.jar", sep="/"))!=T) {warning("Specify the correct path to directory that contains ImageJ.app and ij.jar")
-      return("ImageJ not found")}} else if (unix.check == "Darwin"){
-        if(file.exists(paste(path.imagej, "Contents/Resources/Java/ij.jar", sep = "")) != T & file.exists(paste(path.imagej, "Contents/Resources/Java/ij.jar", sep = "/")) != T) {warning("Specify the correct path to ImageJ.app")
-            return("ImageJ not found")}
-
+  if(unix.check=="Linux") {
+    if(!file.exists(paste(path.imagej, "ij.jar",sep="")) & !file.exists(paste(path.imagej, "ij.jar", sep="/"))) {
+        warning("Specify the correct path to directory that contains ImageJ.app and ij.jar")
+        return("ImageJ not found")
+    }
+  } else if (unix.check == "Darwin"){
+      if(!file.exists(paste(path.imagej, "Contents/Resources/Java/ij.jar", sep = "")) & !file.exists(paste(path.imagej, "Contents/Resources/Java/ij.jar", sep = "/"))) {
+          warning("Specify the correct path to ImageJ.app")
+            return("ImageJ not found")
       }
+
+  }
 }
 
 
@@ -46,8 +57,9 @@ if (os == "windows"){temp <- paste(tempdir(),"\\",sep="")
 temp <- gsub("\\\\","\\\\\\\\",temp)} else {temp <- paste(tempdir(),"/",sep="")
 }
 
-if(save.image == T) macro <- paste('dir = getArgument;\n dir2 = "',temp,'";\n list = getFileList(dir);\n open(dir + list[0]);\n run("Set Scale...", "distance=',distance.pixel, ' known=',known.distance, ' pixel=1 unit=cm global");\n for (i=0;\n i<list.length;\n i++) { open(dir + list[i]);\n width = getWidth() - ',trim.pixel, ';\n height = getHeight() -',trim.pixel,' ;\n run("Canvas Size...", "width=" + width + " height=" + height + " position=Bottom-Center");\n run("8-bit");\n run("Threshold...");\n setAutoThreshold("Minimum");\n run("Analyze Particles...", "size=',size.arg,' circularity=',circ.arg,' show=Masks display clear record");\n saveAs("Measurements", dir2+list[i]+".txt");\n saveAs("tiff", dir+list[i]+ "_mask.tif");\n}',sep="") else macro <- paste('dir = getArgument;\n dir2 = "',temp,'";\n list = getFileList(dir);\n open(dir + list[0]);\n run("Set Scale...", "distance=',distance.pixel, ' known=',known.distance, ' pixel=1 unit=cm global");\n for (i=0;\n i<list.length;\n i++) { open(dir + list[i]);\n width = getWidth() - ',trim.pixel, ';\n height = getHeight() -',trim.pixel,' ;\n run("Canvas Size...", "width=" + width + " height=" + height + " position=Bottom-Center");\n run("8-bit");\n run("Threshold...");\n setAutoThreshold("Minimum");\n run("Analyze Particles...", "size=',size.arg,' circularity=',circ.arg,' show=Masks display clear record");\n saveAs("Measurements", dir2+list[i]+".txt");\n}',sep="")
-
+if(save.image){ 
+   macro <- paste('dir = getArgument;\n dir2 = "',temp,'";\n list = getFileList(dir);\n open(dir + list[0]);\n run("Set Scale...", "distance=',distance.pixel, ' known=',known.distance, ' pixel=1 unit=cm global");\n for (i=0;\n i<list.length;\n i++) { open(dir + list[i]);\n width = getWidth() - ',trim.pixel, ';\n height = getHeight() -',trim.pixel,' ;\n run("Canvas Size...", "width=" + width + " height=" + height + " position=Bottom-Center");\n run("8-bit");\n run("Threshold...");\n setAutoThreshold("Minimum");\n run("Analyze Particles...", "size=',size.arg,' circularity=',circ.arg,' show=Masks display clear record");\n saveAs("Measurements", dir2+list[i]+".txt");\n saveAs("tiff", dir+list[i]+ "_mask.tif");\n}',sep="") else macro <- paste('dir = getArgument;\n dir2 = "',temp,'";\n list = getFileList(dir);\n open(dir + list[0]);\n run("Set Scale...", "distance=',distance.pixel, ' known=',known.distance, ' pixel=1 unit=cm global");\n for (i=0;\n i<list.length;\n i++) { open(dir + list[i]);\n width = getWidth() - ',trim.pixel, ';\n height = getHeight() -',trim.pixel,' ;\n run("Canvas Size...", "width=" + width + " height=" + height + " position=Bottom-Center");\n run("8-bit");\n run("Threshold...");\n setAutoThreshold("Minimum");\n run("Analyze Particles...", "size=',size.arg,' circularity=',circ.arg,' show=Masks display clear record");\n saveAs("Measurements", dir2+list[i]+".txt");\n}',sep="")
+}
 
 #prepare macro***.txt as tempfile
 tempmacro <- paste(tempfile('macro'),".txt",sep="")
@@ -56,7 +68,7 @@ write(macro, file=tempmacro)
 # write(macro, file="~/Desktop/moge.txt")
 # pathimagej <- system.file("java",package="LeafArea")
 
-if(check.image==T) {
+if(check.image) {
   exe <- "-macro "
   wait = FALSE} else {
     exe <- "-batch "
@@ -96,7 +108,7 @@ if (os == "windows"){
 
 
 #kill imageJ
-if(check.image==T){
+if(check.image){
   ans <- readline("Do you want to close ImageJ? Press any keys when you finish cheking analyzed images.")
   if (os == "windows") suppressWarnings(shell('taskkill /f /im "java.exe"')) else system("killall java")
 }
@@ -104,7 +116,7 @@ if(check.image==T){
 # file managemanet
   res <- resmerge.ij(path=temp,prefix=prefix)
 
-  if (log==T) res2 <- readtext.ij(path=temp)
+  if (log) res2 <- readtext.ij(path=temp)
 
 # unlink
   cd <- getwd()
@@ -112,7 +124,7 @@ if(check.image==T){
   unlink(list.files(temp))
   setwd(cd)
 
-  if (log==T) return(list(summary=res,each.image=res2)) else return(res)
+  if (log) return(list(summary=res,each.image=res2)) else return(res)
 
 }
 

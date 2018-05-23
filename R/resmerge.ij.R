@@ -1,7 +1,7 @@
 #' @importFrom stats aggregate
 
-#resmerge.ij <- function(path,prefix="\\.|-"){
-resmerge.ij <- function(path,prefix="\\.|_"){
+#resmerge.ij <- function(path,prefix="\\.|-"){ # string before first hyphen designates sample id to be summed across scans
+resmerge.ij <- function(path,prefix="\\.|_"){ # string before first underscore designates sample id to be summed across scans
   temp0 <- readtext.ij(path)
   temp <- sapply(temp0,sum)
   temp.data <- data.frame(file.name=names(temp),size=temp)
